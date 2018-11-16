@@ -8,6 +8,8 @@ Project 3: Simple HTTP Crawler
 import sys
 import time
 import requests
+import sqlite3
+
 
 def main():
     """
@@ -22,6 +24,7 @@ def main():
     year = ""
     month = ""
 
+    # Get the args, figure out if all, search, or neither
     if args_len == 2:
         if args[1] == "dbmake|all":
             all_flag = True
@@ -40,6 +43,7 @@ def main():
         usage()
         exit(0)
 
+    # If it's all or search, get the requests for the first 5 pages
     r = requests.get(URL)
     time.sleep(6)
     r2 = requests.get(URL + "&page=2")
@@ -50,15 +54,27 @@ def main():
     time.sleep(6)
     r5 = requests.get(URL + "&page=5")
 
+    # Make the database and table
+    conn = sqlite3.connect('Info.db')
+    c = conn.cursor()
+
+    c.execute('CREATE TABLE (Responses) ((Event) (STRING))')
+    c.execute("ALTER TABLE (Responses) ADD COLUMN '(When)' (STRING)")
+    c.execute("ALTER TABLE (Responses) ADD COLUMN '(Where)' (STRING)")
+    c.execute("ALTER TABLE (Responses) ADD COLUMN '(Deadline_Info)' (STRING)")
+
+    # Parse the requests
+
+    # Populate the table
+
     if all_flag:
-        print(r.headers)
-        print(r2.headers)
-        print(r3.headers)
-        print(r4.headers)
-        print(r5.headers)
+        # In progress, only used print for testing
+        print("all")
 
     if search_flag:
-        print(r.headers)
+        # In progress, only used print for testing
+        print("search")
+
 
 def usage():
     """
