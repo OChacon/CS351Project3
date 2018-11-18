@@ -15,6 +15,11 @@ from bs4 import BeautifulSoup
 def main():
     """
     Main function
+    If the args are correct:
+    1) Takes the first 5 pages from WikiCFP
+    2) Parses the Event, When, Where, and Deadline Info
+    3) Stores the info in a database that is created in the same directory
+    4) Prints out all events or events within the given year and month.
     """
 
     args = sys.argv
@@ -26,14 +31,14 @@ def main():
     month = ""
 
     # Get the args, figure out if all, search, or neither
-    if args_len == 2:
-        if args[1] == "dbmake|all":
+    if args_len == 3:
+        if args[1] == "dbmake" and args[2] == "all":
             all_flag = True
         else:
             usage()
             exit(0)
-    elif args_len == 4:
-        if args[1] == "dbmake|search":
+    elif args_len == 5:
+        if args[1] == "dbmake" and args[2] == "search":
             search_flag = True
             year = args[2]
             month = args[3]
@@ -71,12 +76,14 @@ def main():
     soup4 = BeautifulSoup(p4, "html.parser")
     soup5 = BeautifulSoup(p5, "html.parser")
 
+	# Get the right table where the info is at
     table = list(soup.findAll('table')[5])
     table2 = list(soup2.findAll('table')[5])
     table3 = list(soup3.findAll('table')[5])
     table4 = list(soup4.findAll('table')[5])
     table5 = list(soup5.findAll('table')[5])
 
+	# Combine all 5 pages into 1 list
     events = []
     i = 2
     while i <= 80:
@@ -104,7 +111,7 @@ def main():
         i = i + 2
 
     # Make the database and table
-    conn = sqlite3.connect("D:\\Users\Oscar\Sqlite\sqlite-tools-win32-x86-3250300\Info.db")
+    conn = sqlite3.connect(".\Info.db")
     c = conn.cursor()
     c.execute('DROP TABLE IF EXISTS Responses')
     c.execute('CREATE TABLE Responses (Event STRING)')
@@ -144,14 +151,16 @@ def main():
             print("Deadline Info: " + row[3] + '\n')
 
     if search_flag:
-        # In progress, only used print for testing
+        # Fetch the queried data from the db, print it all out
         c.execute("SELECT * FROM Responses WHERE Year=? AND Month=?", (year, month))
         when_data = c.fetchall()
         c.close()
         if len(when_data) == 0:
+			# If there's no event during that specific year and month
             print("There are no events during this year and month.")
 
         else:
+			# Print out all the matching events
             for row in when_data:
                 print("Event: " + row[0])
                 print("When: " + row[1])
@@ -166,8 +175,10 @@ def parse(when):
     :return: Tuple: the year and the month
     """
     if when == "N/A":
+		# If there isn't a specific date, 0 out the year and month
         return "0000", "00"
     else:
+		# Convert the month to it's corresponding 2 digit number representation
         m = ""
         dates = when.split(" ")
         y = dates[2]
