@@ -37,6 +37,9 @@ def main():
             search_flag = True
             year = args[2]
             month = args[3]
+            if len(year) != 4 or len(month) != 2:
+                usage()
+                exit(0)
         else:
             usage()
             exit(0)
@@ -108,10 +111,12 @@ def main():
     c.execute("ALTER TABLE Responses ADD COLUMN 'When' STRING")
     c.execute("ALTER TABLE Responses ADD COLUMN 'Where' STRING")
     c.execute("ALTER TABLE Responses ADD COLUMN 'Deadline_Info' STRING")
+    c.execute("ALTER TABLE Responses ADD COLUMN 'Year' STRING")
+    c.execute("ALTER TABLE Responses ADD COLUMN 'Month' STRING")
 
     # Populate the DB table
     j = 0
-    while j < 200:
+    while j < (len(events) / 2):
         name = events[j].get_text().split("\n")
         event = name[1] + " " + name[2]
         j = j + 1
@@ -119,7 +124,12 @@ def main():
         when = data[1]
         where = data[2]
         deadline = data[3]
-        c.execute("INSERT INTO Responses VALUES (?, ?, ?, ?)", (event, when, where, deadline))
+
+        # Parse the When to get the year and month
+        y, m = parse(when)
+
+        # Store all the info in the DB
+        c.execute("INSERT INTO Responses VALUES (?, ?, ?, ?, ?, ?)", (event, when, where, deadline, y, m))
         j = j + 1
 
     if all_flag:
@@ -135,7 +145,58 @@ def main():
 
     if search_flag:
         # In progress, only used print for testing
-        print("search")
+        c.execute("SELECT * FROM Responses WHERE Year=? AND Month=?", (year, month))
+        when_data = c.fetchall()
+        c.close()
+        if len(when_data) == 0:
+            print("There are no events during this year and month.")
+
+        else:
+            for row in when_data:
+                print("Event: " + row[0])
+                print("When: " + row[1])
+                print("Where: " + row[2])
+                print("Deadline Info: " + row[3] + '\n')
+
+
+def parse(when):
+    """
+    Takes the when info, extracts the year and month of the starting date of the event
+    :param when: the info
+    :return: Tuple: the year and the month
+    """
+    if when == "N/A":
+        return "0000", "00"
+    else:
+        m = ""
+        dates = when.split(" ")
+        y = dates[2]
+        if dates[0] == "Jan":
+            m = "01"
+        elif dates[0] == "Feb":
+            m = "02"
+        elif dates[0] == "Mar":
+            m = "03"
+        elif dates[0] == "Apr":
+            m = "04"
+        elif dates[0] == "May":
+            m = "05"
+        elif dates[0] == "Jun":
+            m = "06"
+        elif dates[0] == "Jul":
+            m = "07"
+        elif dates[0] == "Aug":
+            m = "08"
+        elif dates[0] == "Sep":
+            m = "09"
+        elif dates[0] == "Oct":
+            m = "10"
+        elif dates[0] == "Nov":
+            m = "11"
+        elif dates[0] == "Dec":
+            m = "12"
+
+        return y, m
 
 
 def usage():
