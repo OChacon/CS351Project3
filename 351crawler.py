@@ -116,7 +116,7 @@ def main():
 
     # Populate the DB table
     j = 0
-    while j < (len(events) / 2):
+    while j < len(events):
         name = events[j].get_text().split("\n")
         event = name[1] + " " + name[2]
         j = j + 1
