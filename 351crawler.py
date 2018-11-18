@@ -9,6 +9,7 @@ import sys
 import time
 import requests
 import sqlite3
+from bs4 import BeautifulSoup
 
 
 def main():
@@ -44,7 +45,8 @@ def main():
         exit(0)
 
     # If it's all or search, get the requests for the first 5 pages
-    r = requests.get(URL)
+    r = requests.get(URL + "&page=2")
+    """
     time.sleep(6)
     r2 = requests.get(URL + "&page=2")
     time.sleep(6)
@@ -53,19 +55,43 @@ def main():
     r4 = requests.get(URL + "&page=4")
     time.sleep(6)
     r5 = requests.get(URL + "&page=5")
+    """
+    # Parse the requests
+    p = r.text
+    soup = BeautifulSoup(p, "html.parser")
+    table = list(soup.findAll('table')[5])
+    events = []
+    i = 2
+    while i <= 80:
+        events.append(table[i])
+        i = i + 2
 
+    """
     # Make the database and table
-    conn = sqlite3.connect('Info.db')
+    conn = sqlite3.connect("Info.db")
     c = conn.cursor()
 
     c.execute('CREATE TABLE (Responses) ((Event) (STRING))')
     c.execute("ALTER TABLE (Responses) ADD COLUMN '(When)' (STRING)")
     c.execute("ALTER TABLE (Responses) ADD COLUMN '(Where)' (STRING)")
     c.execute("ALTER TABLE (Responses) ADD COLUMN '(Deadline_Info)' (STRING)")
+    """
 
-    # Parse the requests
-
-    # Populate the table
+    # Populate the DB table
+    j = 0
+    while j < 40:
+        name = events[j].get_text().split("\n")
+        event = name[1] + name[2]
+        # c.execute("INSERT INTO Responses (Event) VALUES (?)", event)
+        j = j + 1
+        data = events[j].get_text().split("\n")
+        when = data[1]
+        where = data[2]
+        deadline = data[3]
+        # c.execute("INSERT INTO Responses (When) VALUES (?)", when)
+        # c.execute("INSERT INTO Responses (Where) VALUES (?)", where)
+        # c.execute("INSERT INTO Responses (Deadline_Info) VALUES (?)", deadline)
+        j = j + 1
 
     if all_flag:
         # In progress, only used print for testing
