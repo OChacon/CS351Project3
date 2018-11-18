@@ -19,7 +19,7 @@ def main():
 
     args = sys.argv
     args_len = len(args)
-    URL = "http://wikicfp.com/cfp/call?conference=computer%20science"
+    url = "http://wikicfp.com/cfp/call?conference=computer%20science"
     all_flag = False
     search_flag = False
     year = ""
@@ -45,25 +45,59 @@ def main():
         exit(0)
 
     # If it's all or search, get the requests for the first 5 pages
-    r = requests.get(URL)
-    """
+    r = requests.get(url)
     time.sleep(6)
-    r2 = requests.get(URL + "&page=2")
+    r2 = requests.get(url + "&page=2")
     time.sleep(6)
-    r3 = requests.get(URL + "&page=3")
+    r3 = requests.get(url + "&page=3")
     time.sleep(6)
-    r4 = requests.get(URL + "&page=4")
+    r4 = requests.get(url + "&page=4")
     time.sleep(6)
-    r5 = requests.get(URL + "&page=5")
-    """
+    r5 = requests.get(url + "&page=5")
+
     # Parse the requests
     p = r.text
+    p2 = r2.text
+    p3 = r3.text
+    p4 = r4.text
+    p5 = r5.text
+
     soup = BeautifulSoup(p, "html.parser")
+    soup2 = BeautifulSoup(p2, "html.parser")
+    soup3 = BeautifulSoup(p3, "html.parser")
+    soup4 = BeautifulSoup(p4, "html.parser")
+    soup5 = BeautifulSoup(p5, "html.parser")
+
     table = list(soup.findAll('table')[5])
+    table2 = list(soup2.findAll('table')[5])
+    table3 = list(soup3.findAll('table')[5])
+    table4 = list(soup4.findAll('table')[5])
+    table5 = list(soup5.findAll('table')[5])
+
     events = []
     i = 2
     while i <= 80:
         events.append(table[i])
+        i = i + 2
+
+    i = 2
+    while i <= 80:
+        events.append(table2[i])
+        i = i + 2
+
+    i = 2
+    while i <= 80:
+        events.append(table3[i])
+        i = i + 2
+
+    i = 2
+    while i <= 80:
+        events.append(table4[i])
+        i = i + 2
+    i = 2
+
+    while i <= 80:
+        events.append(table5[i])
         i = i + 2
 
     # Make the database and table
@@ -77,7 +111,7 @@ def main():
 
     # Populate the DB table
     j = 0
-    while j < 40:
+    while j < 200:
         name = events[j].get_text().split("\n")
         event = name[1] + " " + name[2]
         j = j + 1
@@ -89,15 +123,15 @@ def main():
         j = j + 1
 
     if all_flag:
-        # In progress, only used print for testing
+        # Fetch all the data from the db, print it all out
         c.execute("SELECT * FROM Responses")
-        all = c.fetchall()
-        for row in all:
+        all_data = c.fetchall()
+        c.close()
+        for row in all_data:
             print("Event: " + row[0])
             print("When: " + row[1])
             print("Where: " + row[2])
             print("Deadline Info: " + row[3] + '\n')
-
 
     if search_flag:
         # In progress, only used print for testing
