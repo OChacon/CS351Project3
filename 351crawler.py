@@ -67,6 +67,15 @@ def main():
         time.sleep(6)
         r5 = requests.get(url + "&page=5")
 
+        # See if requests were successful
+        if r.status_code != 200 \
+                or r2.status_code != 200 \
+                or r3.status_code != 200 \
+                or r4.status_code != 200 \
+                or r5.status_code != 200:
+            print("Could not successfully retrieve one or more pages from WikiCFP.")
+            exit(0)
+
         # Parse the requests
         p = r.text
         p2 = r2.text
@@ -236,7 +245,7 @@ def usage():
     print("\t(2)Parses the Event, When, Where, and Deadline info (3)Stores it in a database.")
     print("\tall (Required) Prints out all the event, when, where, and deadline info you've fetched.")
     print("\tsearch (Required) Takes two args for <year> and <month>. Queries the events that match.")
-    print("\tthe format of year is YYYY and the month is MM")
+    print("\tThe format of year is YYYY and the month is MM")
 
 
 if __name__ == "__main__":
