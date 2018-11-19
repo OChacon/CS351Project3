@@ -3,7 +3,7 @@ CSCI-351
 Project 3: 351crawler README
 
 To Run: 
-	1) Run the runme.sh with arg "dbmake"
+	1) Run the runme.sh with arg "dbmake" [ex: "bash runme.sh dbmake"]
 		-This fetches the first five pages from the WikiCFP, parses the info,
 		makes a database, and stores all the parsed info inside.
 		-The program waits 6 seconds inbetween fetching another request to WikiCFP
