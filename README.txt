@@ -23,9 +23,9 @@ To Run:
 
 Writeup:
 	We decided to write this in python because there were useful third party libraries
-	that made this project a lot easier, namely requests and BeautifulSoup. We gave no
-	leeway with incorrectly inputting an argument, which if incorrect, will immedietly
-	spit out the usage and exit. Since this program essensially has 3 main functions,
+	that made this project a lot easier, namely requests and BeautifulSoup. The program 
+	will respond to incorrect commands/arguments with a message describing the error and
+	usage information, and then exit. Since this program essensially has 3 main functions,
 	we separated it accordingly (dbmake, all, search). The main challenge for us was 
 	successfully isolating the text from the html responses. BeautifulSoup made handling
 	the text trivial, however finding it took a while. The parsing itself turned out 

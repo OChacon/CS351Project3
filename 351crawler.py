@@ -38,6 +38,7 @@ def main():
         elif args[1] == "all":
             all_flag = True
         else:
+            print("Invalid command\n")
             usage()
             exit(0)
     elif args_len == 4:
@@ -45,10 +46,20 @@ def main():
             search_flag = True
             year = args[2]
             month = args[3]
-            if len(year) != 4 or len(month) != 2:
+            if len(year) == 4 and len(month) == 2:
+                try:
+                    float(year)
+                    float(month)
+                except ValueError:
+                    print("Date must be numeric\n")
+                    usage()
+                    exit(0)
+            else:
+                print("Date must be in YYYY MM format\n")
                 usage()
                 exit(0)
         else:
+            print("Invalid command\n")
             usage()
             exit(0)
     else:
@@ -58,14 +69,19 @@ def main():
     if make_flag:
         # If it's dbmake, get the requests for the first 5 pages
         r = requests.get(url)
+        print("Getting page 1")
         time.sleep(6)
         r2 = requests.get(url + "&page=2")
+        print("Getting page 2")
         time.sleep(6)
         r3 = requests.get(url + "&page=3")
+        print("Getting page 3")
         time.sleep(6)
         r4 = requests.get(url + "&page=4")
+        print("Getting page 4")
         time.sleep(6)
         r5 = requests.get(url + "&page=5")
+        print("Getting page 5")
 
         # See if requests were successful
         if r.status_code != 200 \
@@ -162,7 +178,11 @@ def main():
         # Fetch all the data from the db, print it all out
         conn = sqlite3.connect(".\Info.db")
         c = conn.cursor()
-        c.execute("SELECT * FROM Responses")
+        try:
+            c.execute("SELECT * FROM Responses")
+        except sqlite3.OperationalError:
+            print("No database exists")
+            exit(0)
         all_data = c.fetchall()
         c.close()
         for row in all_data:
@@ -175,7 +195,11 @@ def main():
         # Fetch the queried data from the db, print it all out
         conn = sqlite3.connect(".\Info.db")
         c = conn.cursor()
-        c.execute("SELECT * FROM Responses WHERE Year=? AND Month=?", (year, month))
+        try:
+            c.execute("SELECT * FROM Responses WHERE Year=? AND Month=?", (year, month))
+        except sqlite3.OperationalError:
+            print("No database exists")
+            exit(0)
         when_data = c.fetchall()
         c.close()
         if len(when_data) == 0:
@@ -242,10 +266,11 @@ def usage():
 
     print("Usage: 351crawler.py <dbmake|all|search> <optional-argument-1> <optional-argument-2>")
     print("\tdbmake (Required) (1)Fetches the first five pages from the WikiCFP")
-    print("\t(2)Parses the Event, When, Where, and Deadline info (3)Stores it in a database.")
-    print("\tall (Required) Prints out all the event, when, where, and deadline info you've fetched.")
+    print("\t\t\t\t\t  (2)Parses the Event, When, Where, and Deadline info ")
+    print("\t\t\t\t\t  (3)Stores it in a database.")
+    print("\tall (Required)    Prints out all the event, when, where, and deadline info you've fetched.")
     print("\tsearch (Required) Takes two args for <year> and <month>. Queries the events that match.")
-    print("\tThe format of year is YYYY and the month is MM")
+    print("\t\t\t\t\t  The format of year is YYYY and the month is MM.")
 
 
 if __name__ == "__main__":
